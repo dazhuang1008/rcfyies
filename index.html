@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f6f7f9">
+    <title>中文到西班牙语 | 日常翻译学习</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --page: #f6f7f9;
+            --surface: #ffffff;
+            --surface-muted: #f8f9fb;
+            --line: #e1e5ea;
+            --ink: #202124;
+            --muted: #68717d;
+            --blue: #1a73e8;
+            --blue-hover: #1558b0;
+            --orange: #ed5b24;
+            --good: #147d55;
+            --bad: #b42318;
+            --shadow: 0 8px 24px rgba(32, 41, 56, .07);
+        }
+        body.dark {
+            color-scheme: dark;
+            --page: #11151b;
+            --surface: #191e26;
+            --surface-muted: #202732;
+            --line: #323b48;
+            --ink: #edf1f5;
+            --muted: #a4afbd;
+            --blue: #87b7ff;
+            --blue-hover: #a7caff;
+            --orange: #ff8557;
+            --good: #72d3a9;
+            --bad: #ff938b;
+            --shadow: 0 12px 30px rgba(0, 0, 0, .24);
+        }
+        * { box-sizing: border-box; }
+        html { min-height: 100%; scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--page);
+            color: var(--ink);
+            font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+            letter-spacing: 0;
+        }
+        button, textarea, input, select { font: inherit; }
+        button { cursor: pointer; }
+        .app { width: min(100% - 32px, 760px); margin: 0 auto; padding: 16px 0 40px; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+        .wordmark { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .mark { width: 7px; height: 32px; border-radius: 8px; background: var(--orange); flex: 0 0 auto; }
+        .wordmark h1 { font-size: 19px; line-height: 1.25; margin: 0; font-weight: 700; }
+        .wordmark p { color: var(--muted); font-size: 12px; margin: 3px 0 0; }
+        .top-actions { display: flex; align-items: center; gap: 8px; }
+        .icon-button {
+            width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px;
+            display: grid; place-items: center; color: var(--ink); background: var(--surface);
+        }
+        .icon-button:hover { border-color: var(--blue); color: var(--blue); }
+        .direction { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+        .direction strong { color: var(--ink); font-weight: 700; }
+        .direction-arrow { color: var(--blue); font-size: 18px; }
+        .workspace { display: grid; gap: 12px; }
+        .panel {
+            background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+            overflow: hidden; box-shadow: var(--shadow);
+        }
+        .panel-head { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+        .panel-label { color: var(--blue); font-size: 14px; font-weight: 700; }
+        .panel-label.output-label { color: var(--good); }
+        .text-input {
+            display: block; width: 100%; min-height: 190px; padding: 17px 16px 8px;
+            resize: none; overflow: hidden; border: 0; outline: 0; background: transparent;
+            color: var(--ink); font-size: 19px; line-height: 1.65;
+        }
+        .text-input::placeholder { color: #929ba7; }
+        .panel-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px 14px; }
+        .counter, .status { color: var(--muted); font-size: 12px; }
+        .button-row { display: flex; align-items: center; gap: 8px; }
+        .voice-button {
+            width: 40px; height: 40px; padding: 0; border: 1px solid var(--line); border-radius: 9px;
+            display: grid; place-items: center; background: var(--surface); color: var(--ink);
+        }
+        .voice-button:hover { border-color: var(--blue); color: var(--blue); }
+        .voice-button[aria-pressed="true"] { border-color: var(--bad); color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--surface)); }
+        .voice-button:disabled { opacity: .55; cursor: not-allowed; }
+        .text-button, .copy-button {
+            min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px;
+            background: var(--surface); color: var(--ink); font-size: 14px;
+        }
+        .text-button:hover, .copy-button:hover { border-color: var(--blue); color: var(--blue); }
+        .primary-button {
+            min-height: 42px; padding: 0 19px; border: 0; border-radius: 9px;
+            color: #fff; background: var(--blue); font-size: 14px; font-weight: 700;
+        }
+        .primary-button:hover { background: var(--blue-hover); }
+        .primary-button:disabled { opacity: .58; cursor: wait; }
+        .result-body { padding: 16px; }
+        .result-empty { min-height: 150px; display: grid; place-items: center; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.7; }
+        .result-block + .result-block { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 14px; }
+        .result-heading { color: var(--muted); font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+        .spanish-result { font-size: 21px; line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap; }
+        .chinese-result { font-size: 15px; line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap; }
+        .learning-note { color: var(--muted); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap; }
+        .result-actions { display: flex; justify-content: flex-end; padding: 0 14px 14px; }
+        .notice { min-height: 22px; padding: 2px 2px 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+        .notice.error { color: var(--bad); }
+        .history-mask, .modal-mask { position: fixed; inset: 0; background: rgba(13, 20, 30, .34); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+        .history-mask.open, .modal-mask.open { opacity: 1; pointer-events: auto; }
+        .history-drawer {
+            position: fixed; z-index: 40; top: 0; right: 0; bottom: 0; width: min(440px, 92vw);
+            background: var(--surface); border-left: 1px solid var(--line); box-shadow: -14px 0 35px rgba(0, 0, 0, .16);
+            transform: translateX(105%); transition: transform .22s; display: flex; flex-direction: column;
+        }
+        .history-drawer.open { transform: translateX(0); }
+        .drawer-head, .modal-head { min-height: 62px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+        .drawer-head h2, .modal-head h2 { font-size: 17px; margin: 0; }
+        .drawer-tools { display: flex; align-items: center; gap: 8px; }
+        .history-list { overflow-y: auto; padding: 8px; }
+        .history-entry { width: 100%; text-align: left; border: 0; border-radius: 9px; background: transparent; color: var(--ink); padding: 12px; }
+        .history-entry:hover { background: var(--surface-muted); }
+        .history-time { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+        .history-preview { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+        .history-preview + .history-preview { margin-top: 4px; color: var(--muted); }
+        .empty-history { padding: 48px 16px; color: var(--muted); text-align: center; font-size: 14px; }
+        .settings-modal { position: fixed; z-index: 60; inset: 0; display: none; align-items: center; justify-content: center; padding: 18px; }
+        .settings-modal.open { display: flex; }
+        .settings-card { position: relative; z-index: 70; width: min(520px, 100%); max-height: min(90vh, 760px); overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: 0 24px 56px rgba(0, 0, 0, .25); }
+        .modal-body { padding: 16px; }
+        .settings-explainer { color: var(--muted); font-size: 13px; line-height: 1.65; margin: 0 0 16px; }
+        .field { display: grid; gap: 7px; margin: 0 0 14px; }
+        .field label { font-size: 13px; font-weight: 700; }
+        .field input, .field select { width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 9px; padding: 0 11px; background: var(--surface-muted); color: var(--ink); outline: none; }
+        .field input:focus, .field select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26, 115, 232, .12); }
+        .modal-foot { border-top: 1px solid var(--line); padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .settings-status { color: var(--muted); font-size: 12px; }
+        @media (min-width: 720px) {
+            .app { padding-top: 24px; }
+            .topbar { margin-bottom: 26px; }
+            .text-input { min-height: 220px; font-size: 20px; }
+            .workspace { gap: 14px; }
+        }
+        @media (max-width: 420px) {
+            .app { width: min(100% - 22px, 760px); padding-top: 11px; }
+            .topbar { margin-bottom: 16px; }
+            .wordmark h1 { font-size: 17px; }
+            .wordmark p { display: none; }
+            .top-actions { gap: 5px; }
+            .icon-button { width: 39px; height: 39px; }
+            .text-input { min-height: 174px; font-size: 18px; padding: 14px 13px 7px; }
+            .panel-head { padding: 0 13px; }
+            .panel-foot { padding: 8px 10px 11px; }
+            .primary-button { padding: 0 15px; }
+            .text-button { padding: 0 10px; }
+            .result-body { padding: 14px 13px; }
+            .spanish-result { font-size: 19px; }
+            .panel { border-radius: 10px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <main class="app">
+        <header class="topbar">
+            <div class="wordmark">
+                <span class="mark" aria-hidden="true"></span>
+                <div><h1>中文到西班牙语</h1><p>日常表达 · A2–B1 学习版</p></div>
+            </div>
+            <div class="top-actions">
+                <button id="historyButton" class="icon-button" type="button" title="历史记录" aria-label="打开历史记录">
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path><path d="M12 7v5l3 2"></path></svg>
+                </button>
+                <button id="settingsButton" class="icon-button" type="button" title="设置" aria-label="打开设置">
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"></path><path d="m19.4 15 .1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H2.5a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 4 5.2l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V1a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1 1.7 1.7 0 0 0 0 1.8Z"></path></svg>
+                </button>
+                <button id="themeButton" class="icon-button" type="button" title="切换明暗模式" aria-label="切换明暗模式">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a6 6 0 0 0 9 7.7A9 9 0 1 1 12 3Z"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="direction"><strong>中文</strong><span class="direction-arrow">→</span><strong>西班牙语</strong><span>通用表达</span></div>
+        <section class="workspace" aria-label="中文到西班牙语翻译">
+            <div class="panel">
+                <div class="panel-head"><span class="panel-label">中文</span><span id="inputStatus" class="status">输入你想表达的话</span></div>
+                <textarea id="sourceText" class="text-input" maxlength="10000" placeholder="输入日常中文，生成自然、简单的西班牙语表达" aria-label="中文原文"></textarea>
+                <div class="panel-foot">
+                    <span id="charCount" class="counter">0 / 10000</span>
+                    <div class="button-row">
+                        <button id="voiceButton" class="voice-button" type="button" title="语音输入中文" aria-label="开始语音输入" aria-pressed="false">
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21m-4 0h8"></path></svg>
+                        </button>
+                        <button id="clearButton" class="text-button" type="button">清空</button>
+                        <button id="translateButton" class="primary-button" type="button">翻译成西班牙语</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" aria-live="polite">
+                <div class="panel-head"><span class="panel-label output-label">西班牙语</span><span id="outputStatus" class="status">译文会显示在这里</span></div>
+                <div id="resultContent" class="result-body"><div class="result-empty">写下中文，获得自然、清楚、日常可用的西班牙语表达。</div></div>
+                <div id="resultActions" class="result-actions" hidden>
+                    <button id="copyButton" class="copy-button" type="button">复制西班牙语</button>
+                </div>
+            </div>
+            <div id="notice" class="notice">翻译内容会发送到你配置的模型服务，用于生成译文。</div>
+        </section>
+    </main>
+
+    <div id="historyMask" class="history-mask"></div>
+    <aside id="historyDrawer" class="history-drawer" aria-hidden="true" aria-label="翻译记录">
+        <div class="drawer-head"><h2>翻译记录</h2><div class="drawer-tools"><button id="clearHistoryButton" class="text-button" type="button">清空</button><button id="closeHistoryButton" class="icon-button" type="button" aria-label="关闭记录">×</button></div></div>
+        <div id="historyList" class="history-list"><div class="empty-history">还没有翻译记录</div></div>
+    </aside>
+
+    <div id="settingsModal" class="settings-modal" aria-hidden="true">
+        <div id="settingsMask" class="modal-mask"></div>
+        <section class="settings-card" aria-labelledby="settingsTitle">
+            <div class="modal-head"><h2 id="settingsTitle">连接设置</h2><button id="closeSettingsButton" class="icon-button" type="button" aria-label="关闭设置">×</button></div>
+            <div class="modal-body">
+                <p class="settings-explainer">填写你在 TeamoRouter 创建的 API Key。密钥只保存在当前浏览器，不会写入网页文件或 GitHub 仓库。</p>
+                <div class="field"><label for="apiKeyInput">TeamoRouter API Key</label><input id="apiKeyInput" type="password" placeholder="粘贴 API Key" autocomplete="off" spellcheck="false"></div>
+                <div class="field"><label for="modelSelect">GPT 模型</label><select id="modelSelect"><option value="gpt-6.1-sol">GPT-6.1 Sol（推荐）</option><option value="gpt-6-luna">GPT-6 Luna</option><option value="gpt-6-astra">GPT-6 Astra</option></select></div>
+                <p class="settings-explainer">注意：API Key 会从此浏览器直接发送给 TeamoRouter。不要在公共或他人可使用的设备上保存；公开分享网页时，其他使用者应填写自己的 Key。</p>
+            </div>
+            <div class="modal-foot"><span id="settingsStatus" class="settings-status">尚未连接</span><div class="button-row"><button id="clearSettingsButton" class="text-button" type="button">清除</button><button id="saveSettingsButton" class="primary-button" type="button">保存</button></div></div>
+        </section>
+    </div>
+
+    <script>
+        const SETTINGS_KEY = "dailySpanishTranslatorSettingsV1";
+        const HISTORY_KEY = "dailySpanishTranslatorHistoryV1";
+        const MODEL_NAMES = {
+            "gpt-6.1-sol": "GPT-6.1 Sol",
+            "gpt-6-luna": "GPT-6 Luna",
+            "gpt-6-astra": "GPT-6 Astra"
+        };
+        const API_URL = "https://api.teamorouter.com/v1/chat/completions";
+        const sourceText = document.getElementById("sourceText");
+        const translateButton = document.getElementById("translateButton");
+        const voiceButton = document.getElementById("voiceButton");
+        const resultContent = document.getElementById("resultContent");
+        const outputStatus = document.getElementById("outputStatus");
+        const notice = document.getElementById("notice");
+        const resultActions = document.getElementById("resultActions");
+        const historyDrawer = document.getElementById("historyDrawer");
+        const historyMask = document.getElementById("historyMask");
+        const settingsModal = document.getElementById("settingsModal");
+        let currentResult = null;
+        let history = [];
+        let speechRecognition = null;
+        let isListening = false;
+
+        function readSettings() {
+            try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"); }
+            catch (_) { return {}; }
+        }
+
+        function readHistory() {
+            try {
+                const value = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+                return Array.isArray(value) ? value : [];
+            } catch (_) { return []; }
+        }
+
+        function resizeInput() {
+            sourceText.style.height = "auto";
+            sourceText.style.height = Math.max(window.innerWidth <= 420 ? 174 : 190, sourceText.scrollHeight) + "px";
+        }
+
+        function updateCounter() {
+            document.getElementById("charCount").textContent = sourceText.value.length + " / 10000";
+            document.getElementById("inputStatus").textContent = sourceText.value.trim() ? "中文原文" : "输入你想表达的话";
+            resizeInput();
+        }
+
+        function setListening(listening) {
+            isListening = listening;
+            voiceButton.setAttribute("aria-pressed", String(listening));
+            voiceButton.setAttribute("aria-label", listening ? "停止语音输入" : "开始语音输入");
+            voiceButton.title = listening ? "停止语音输入" : "语音输入中文";
+        }
+
+        function startVoiceInput() {
+            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Recognition) {
+                notice.textContent = "当前浏览器不支持语音识别。请使用支持语音输入的 Chrome 或 Edge，或用手机键盘上的麦克风输入。";
+                notice.classList.add("error");
+                return;
+            }
+            speechRecognition = new Recognition();
+            speechRecognition.lang = "zh-CN";
+            speechRecognition.continuous = true;
+            speechRecognition.interimResults = true;
+            speechRecognition.onstart = () => {
+                setListening(true);
+                notice.textContent = "正在听，请开始说中文；再次点击麦克风结束。";
+                notice.classList.remove("error");
+            };
+            speechRecognition.onresult = (event) => {
+                let interim = "";
+                let finalText = "";
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) finalText += transcript;
+                    else interim += transcript;
+                }
+                if (finalText) {
+                    const current = sourceText.value;
+                    const separator = current && !/[\\s\\n]$/.test(current) ? " " : "";
+                    sourceText.value = (current + separator + finalText).slice(0, 10000);
+                    updateCounter();
+                }
+                if (interim) notice.textContent = "正在识别：" + interim;
+            };
+            speechRecognition.onerror = (event) => {
+                const messages = {
+                    "not-allowed": "麦克风权限未开启。请在浏览器地址栏的网站权限中允许使用麦克风。",
+                    "service-not-allowed": "浏览器语音识别服务不可用。",
+                    "no-speech": "没有检测到语音，请靠近麦克风后重试。",
+                    "network": "语音识别服务连接失败，请检查网络后重试。",
+                    "audio-capture": "没有找到可用的麦克风。"
+                };
+                notice.textContent = messages[event.error] || "语音输入失败，请重试。";
+                notice.classList.add("error");
+            };
+            speechRecognition.onend = () => {
+                setListening(false);
+                speechRecognition = null;
+                if (!notice.classList.contains("error")) notice.textContent = "语音输入已结束，可以检查文字并开始翻译。";
+            };
+            try { speechRecognition.start(); }
+            catch (_) {
+                setListening(false);
+                speechRecognition = null;
+                notice.textContent = "语音输入暂时无法启动，请稍后重试。";
+                notice.classList.add("error");
+            }
+        }
+
+        function toggleVoiceInput() {
+            if (isListening && speechRecognition) {
+                speechRecognition.stop();
+                return;
+            }
+            startVoiceInput();
+        }
+
+        function esc(value) {
+            return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+
+        function renderResult(result) {
+            currentResult = result;
+            let html = "";
+            if (result.polished_chinese) {
+                html += '<section class="result-block"><div class="result-heading">整理后的中文意思</div><div class="chinese-result">' + esc(result.polished_chinese) + '</div></section>';
+            }
+            if (result.spanish) {
+                html += '<section class="result-block"><div class="result-heading">西班牙语</div><div class="spanish-result">' + esc(result.spanish) + '</div></section>';
+            }
+            if (result.question) {
+                html += '<section class="result-block"><div class="result-heading">需要确认</div><div class="learning-note">' + esc(result.question) + '</div></section>';
+            }
+            if (result.note) {
+                html += '<section class="result-block"><div class="result-heading">表达提示</div><div class="learning-note">' + esc(result.note) + '</div></section>';
+            }
+            if (!html) html = '<div class="result-empty">没有收到可显示的译文，请再试一次。</div>';
+            resultContent.innerHTML = html;
+            resultActions.hidden = !result.spanish;
+            outputStatus.textContent = result.needs_clarification ? "请先确认原意" : "翻译完成";
+            resizeInput();
+        }
+
+        function saveHistoryItem(item) {
+            history.unshift(item);
+            history = history.slice(0, 60);
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById("historyList");
+            if (!history.length) {
+                list.innerHTML = '<div class="empty-history">还没有翻译记录</div>';
+                return;
+            }
+            list.innerHTML = history.map((item, index) => {
+                const date = new Date(item.time);
+                const time = date.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+                return '<button class="history-entry" type="button" data-index="' + index + '"><div class="history-time">' + esc(time) + '</div><div class="history-preview">' + esc(item.source) + '</div><div class="history-preview">' + esc(item.spanish) + '</div></button>';
+            }).join("");
+            list.querySelectorAll(".history-entry").forEach((button) => {
+                button.addEventListener("click", () => {
+                    const item = history[Number(button.dataset.index)];
+                    if (!item) return;
+                    sourceText.value = item.source;
+                    updateCounter();
+                    renderResult(item.result);
+                    closeHistory();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                });
+            });
+        }
+
+        function openHistory() {
+            historyDrawer.classList.add("open");
+            historyMask.classList.add("open");
+            historyDrawer.setAttribute("aria-hidden", "false");
+        }
+
+        function closeHistory() {
+            historyDrawer.classList.remove("open");
+            historyMask.classList.remove("open");
+            historyDrawer.setAttribute("aria-hidden", "true");
+        }
+
+        function openSettings() {
+            const settings = readSettings();
+            document.getElementById("apiKeyInput").value = settings.apiKey || "";
+            document.getElementById("modelSelect").value = MODEL_NAMES[settings.model] ? settings.model : "gpt-6.1-sol";
+            settingsModal.classList.add("open");
+            settingsModal.setAttribute("aria-hidden", "false");
+        }
+
+        function closeSettings() {
+            settingsModal.classList.remove("open");
+            settingsModal.setAttribute("aria-hidden", "true");
+        }
+
+        function saveSettings() {
+            const apiKey = document.getElementById("apiKeyInput").value.trim();
+            const model = document.getElementById("modelSelect").value;
+            if (!apiKey) {
+                document.getElementById("settingsStatus").textContent = "请粘贴 TeamoRouter API Key";
+                document.getElementById("apiKeyInput").focus();
+                return;
+            }
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify({ apiKey, model }));
+            document.getElementById("settingsStatus").textContent = "已保存到此浏览器";
+            closeSettings();
+        }
+
+        function buildMessages(text) {
+            const system = [
+                "你是一位耐心、准确的西班牙语老师，帮助中文母语者把日常中文表达成自然、清楚、当地人会说的西班牙语。",
+                "学习者水平约 A2-B1。优先使用常见词、简单语法和容易掌握的句式；不要逐字硬译，不使用不必要的生僻词、复杂从句或过度正式表达。",
+                "忠实保留事实、语气、数字、专有名词和说话人的立场，不擅自添加内容。默认使用通用现代西班牙语；只有确有必要时才指出地区差异。",
+                "先判断中文原意是否清楚。如果清楚，不重复改写中文。如果中文有歧义但可根据上下文整理，填入 polished_chinese 并给出对应西语。如果关键原意确实无法判断，needs_clarification 设为 true，question 用一句简短中文提出必要问题，不要猜测；此时 spanish 留空。",
+                "只在有助于学习时，在 note 中用简短中文说明一处关键表达。不要逐词讲解。",
+                "必须只输出一个有效 JSON 对象，不要 Markdown 代码围栏或额外文本。字段固定为：needs_clarification (boolean), polished_chinese (string), spanish (string), note (string), question (string)。"
+            ].join("\n");
+            return [{ role: "system", content: system }, { role: "user", content: "请按规则处理这段中文：\n\n" + text }];
+        }
+
+        function parseResult(content) {
+            const raw = String(content || "").trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+            try {
+                const data = JSON.parse(raw);
+                return { needs_clarification: Boolean(data.needs_clarification), polished_chinese: String(data.polished_chinese || ""), spanish: String(data.spanish || ""), note: String(data.note || ""), question: String(data.question || "") };
+            } catch (_) {
+                return { needs_clarification: false, polished_chinese: "", spanish: raw, note: "", question: "" };
+            }
+        }
+
+        async function translate() {
+            const text = sourceText.value.trim();
+            if (!text) {
+                notice.textContent = "先输入一段中文。";
+                notice.classList.add("error");
+                sourceText.focus();
+                return;
+            }
+            const settings = readSettings();
+            if (!settings.apiKey) {
+                notice.textContent = "请先在设置中填写 TeamoRouter API Key。";
+                notice.classList.add("error");
+                openSettings();
+                return;
+            }
+            translateButton.disabled = true;
+            translateButton.textContent = "翻译中…";
+            outputStatus.textContent = "正在生成日常表达";
+            notice.textContent = "正在翻译…";
+            notice.classList.remove("error");
+            resultContent.innerHTML = '<div class="result-empty">正在生成自然、易学的西班牙语表达…</div>';
+            resultActions.hidden = true;
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Authorization": "Bearer " + settings.apiKey, "Content-Type": "application/json" },
+                    body: JSON.stringify({ model: settings.model || "gpt-6.1-sol", messages: buildMessages(text), max_tokens: 1800, stream: false })
+                });
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.error?.message || payload.message || ("服务返回错误 " + response.status));
+                const content = payload.choices?.[0]?.message?.content;
+                if (!content) throw new Error("模型没有返回译文，请检查模型和账户额度。");
+                const result = parseResult(content);
+                renderResult(result);
+                notice.textContent = "已完成。译文仅保存在本机浏览器的历史记录中。";
+                notice.classList.remove("error");
+                saveHistoryItem({ time: Date.now(), source: text, spanish: result.spanish || "", result });
+            } catch (error) {
+                resultContent.innerHTML = '<div class="result-empty">翻译暂时没有完成。</div>';
+                outputStatus.textContent = "连接失败";
+                notice.textContent = error.message === "Failed to fetch" ? "无法连接模型服务。可能是网络或浏览器跨域限制；请确认 TeamoRouter 支持网页直连，或改用服务端代理。" : (error.message || "无法连接翻译服务，请检查设置后重试。");
+                notice.classList.add("error");
+            } finally {
+                translateButton.disabled = false;
+                translateButton.textContent = "翻译成西班牙语";
+            }
+        }
+
+        function initialize() {
+            history = readHistory();
+            renderHistory();
+            updateCounter();
+            const settings = readSettings();
+            document.getElementById("settingsStatus").textContent = settings.apiKey ? "已保存到此浏览器" : "尚未连接";
+            if (localStorage.getItem("dailySpanishTheme") === "dark" || (!localStorage.getItem("dailySpanishTheme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) document.body.classList.add("dark");
+        }
+
+        sourceText.addEventListener("input", updateCounter);
+        sourceText.addEventListener("keydown", (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); translate(); }
+        });
+        document.getElementById("translateButton").addEventListener("click", translate);
+        voiceButton.addEventListener("click", toggleVoiceInput);
+        document.getElementById("clearButton").addEventListener("click", () => { sourceText.value = ""; resultContent.innerHTML = '<div class="result-empty">写下中文，获得自然、简单、日常可用的西班牙语表达。</div>'; resultActions.hidden = true; outputStatus.textContent = "译文会显示在这里"; notice.textContent = "翻译内容会发送到你配置的模型服务，用于生成译文。"; notice.classList.remove("error"); updateCounter(); sourceText.focus(); });
+        document.getElementById("copyButton").addEventListener("click", async () => {
+            if (!currentResult || !currentResult.spanish) return;
+            try { await navigator.clipboard.writeText(currentResult.spanish); document.getElementById("copyButton").textContent = "已复制"; setTimeout(() => { document.getElementById("copyButton").textContent = "复制西班牙语"; }, 1300); }
+            catch (_) { notice.textContent = "复制失败，请手动选择译文复制。"; notice.classList.add("error"); }
+        });
+        document.getElementById("historyButton").addEventListener("click", openHistory);
+        document.getElementById("closeHistoryButton").addEventListener("click", closeHistory);
+        historyMask.addEventListener("click", closeHistory);
+        document.getElementById("clearHistoryButton").addEventListener("click", () => {
+            if (!history.length || !confirm("确定清空本机保存的翻译记录吗？")) return;
+            history = [];
+            localStorage.removeItem(HISTORY_KEY);
+            renderHistory();
+        });
+        document.getElementById("settingsButton").addEventListener("click", openSettings);
+        document.getElementById("closeSettingsButton").addEventListener("click", closeSettings);
+        document.getElementById("settingsMask").addEventListener("click", closeSettings);
+        document.getElementById("saveSettingsButton").addEventListener("click", saveSettings);
+        document.getElementById("clearSettingsButton").addEventListener("click", () => {
+            localStorage.removeItem(SETTINGS_KEY);
+            document.getElementById("apiKeyInput").value = "";
+            document.getElementById("modelSelect").value = "gpt-6.1-sol";
+            document.getElementById("settingsStatus").textContent = "已清除此浏览器的设置";
+        });
+        document.getElementById("themeButton").addEventListener("click", () => {
+            document.body.classList.toggle("dark");
+            localStorage.setItem("dailySpanishTheme", document.body.classList.contains("dark") ? "dark" : "light");
+        });
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeHistory(); closeSettings(); } });
+        window.addEventListener("resize", resizeInput);
+        initialize();
+    </script>
+</body>
+</html>
